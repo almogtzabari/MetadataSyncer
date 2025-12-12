@@ -48,19 +48,29 @@ Open a terminal in the root folder and install the required libraries:
 pip install PyQt6 pyinstaller tzdata geopy timezonefinder
 ```
 
-### 2. Building from Source
-Run the `build.bat` script to create a single-file executable.
+### 2. Prepare Development Environment
+This project requires **ExifTool**, a powerful utility for metadata handling. A helper script is provided to download it for you.
+
+Run the preparation script:
+```bash
+prepare-dev.bat
+```
+This will download and place `exiftool.exe` in the `third_party` directory. You only need to run this once.
+
+### 3. Building from Source
+Once the dependencies are ready, you can build the single-file executable by running:
 
 ```bash
 build.bat
 ```
 
-The script leverages ExifTool, a powerful, free, and open-source software for reading and writing metadata. The build script will automatically:
-1.  **Download ExifTool:** It fetches the ExifTool utility from its official website (https://exiftool.org) if it's not already present in the `third_party` folder.
-2.  **Extract Files:** It extracts the tool and its necessary components.
-3.  **Compile the App:** It uses PyInstaller to bundle the Python script and all dependencies (including ExifTool) into a single `.exe` file located in the `dist` directory.
+This script performs the following steps:
+1.  **Calls `prepare-dev.bat`:** Ensures ExifTool is present.
+2.  **Cleans Previous Builds:** Removes old `build` and `dist` folders.
+3.  **Compiles the App:** Uses PyInstaller to bundle the Python script and all dependencies (including ExifTool) into a single `.exe` file.
+4.  **Finalizes:** The final executable is placed in the `dist` directory.
 
-### 3. Folder Structure
+### 4. Folder Structure
 This project relies on a specific structure for development and building:
 
 * **`src/`**: Contains the Python source code (`metadata_syncer.pyw`).

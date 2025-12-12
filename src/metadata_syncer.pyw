@@ -27,7 +27,7 @@ except ImportError:
     TZFINDER_AVAILABLE = False
 
 # --- Configuration ---
-APP_AUTHOR = "AlmogTools"
+APP_AUTHOR = "Almog Tzabari"
 APP_NAME = "MetadataSyncer"
 
 # --- Helpers ---
@@ -112,13 +112,8 @@ class FileAnalyzerWorker(QThread):
             ]
             cmd = [self.exif_cmd, "-n", "-json"] + tags + [self.file_path]
 
-            startupinfo = None
-            if sys.platform == "win32":
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
             res = subprocess.run(cmd, capture_output=True, text=True,
-                                 creationflags=0x08000000 if sys.platform == "win32" else 0, encoding='utf-8', errors='ignore')
+                                 creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0, encoding='utf-8', errors='ignore')
 
             if not res.stdout.strip():
                 self.data_ready.emit(result)
@@ -229,7 +224,7 @@ class TimezonePopup(QDialog):
         try:
             zones = sorted(list(zoneinfo.available_timezones()))
         except:
-            zones = ["Asia/Jerusalem", "UTC"]
+            zones = ["UTC", "Asia/Jerusalem", "America/New_York", "Europe/London", "Asia/Tokyo"]
         for z in zones:
             self.list_widget.addItem(QListWidgetItem(z))
 
@@ -250,7 +245,7 @@ class ModernTimezoneSelector(QPushButton):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setText("Select Timezone")
-        self.current_tz = "Asia/Jerusalem"
+        self.current_tz = "UTC"
         self.clicked.connect(self.toggle_popup)
         self.setStyleSheet(
             "QPushButton { background-color: #2d2d2d; border: 1px solid #3e3e3e; border-radius: 4px; padding: 10px; color: white; text-align: left; } QPushButton:hover { border: 1px solid #007fd4; }")
@@ -355,7 +350,7 @@ class FileDropZone(QFrame):
 class MetadataSyncerApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(f"{APP_NAME} v32")
+        self.setWindowTitle(f"{APP_NAME}")
         self.resize(850, 750)
         self.setStyleSheet("""
             QWidget { background-color: #1e1e1e; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; font-size: 14px; }
@@ -620,12 +615,8 @@ class MetadataSyncerApp(QWidget):
         cmd.extend(["-overwrite_original", tgt])
 
         try:
-            startupinfo = None
-            if sys.platform == "win32":
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             subprocess.run(
-                cmd, check=True, creationflags=0x08000000 if sys.platform == "win32" else 0)
+                cmd, check=True, creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0)
             QMessageBox.information(self, "Success", "Synced!")
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
