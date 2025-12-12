@@ -79,3 +79,9 @@ This project relies on a specific structure for development and building:
 * **`assets/`**: Contains UI resources like `app_icon.ico`.
 * **`third_party/`**: Contains `exiftool.exe` and its dependency folder `exiftool_files`.
     * *Note: These files are bundled INSIDE the final EXE during the build process.*
+
+---
+
+## 👏 Credits
+
+* **App Icon:** Icon made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/).
