@@ -82,6 +82,7 @@ This project relies on a specific structure for development and building:
 
 ---
 
-## 👏 Credits
+## 👏 Credits & Legal
 
+* **Core Engine:** Powered by [ExifTool](https://exiftool.org/) by Phil Harvey. This application includes a binary distribution of ExifTool, which is used under the generic Perl License (Artistic/GPL).
 * **App Icon:** Icon made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/).
