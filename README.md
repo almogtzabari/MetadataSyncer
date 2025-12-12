@@ -1,8 +1,23 @@
-# Metadata Syncer Pro
+# Metadata Syncer
 
-**Metadata Syncer Pro** is a professional Python-based GUI tool designed to restore missing metadata to rendered video files.
+**Metadata Syncer** is a professional Python-based GUI tool designed to restore missing metadata to rendered video files.
 
 Video editors (like DaVinci Resolve or Premiere Pro) often strip essential metadata—such as the original creation date, GPS location, and camera technical details—during export. This tool copies that data from the original source file to the new rendered file, ensuring correct sorting and display in **Windows Explorer**, **QuickTime**, **Google Photos**, and **Immich**.
+
+---
+
+## 🚀 How to Use (For Users)
+
+1.  Get the **`MetadataSyncer.exe`** file.
+2.  **That's it!** The file is completely portable (Single-File). No installation required.
+3.  Double-click to launch.
+4.  **Source Video:** Drag & drop your original camera footage.
+5.  **Target Video:** Drag & drop your rendered/edited file.
+6.  **Review Data:**
+    * The tool will automatically suggest a Timezone if GPS is found.
+    * Use the **Checkboxes** to select what data to copy (Date, Location, Camera Info).
+    * Check the **Preview Panel** to see the address and date calculations.
+7.  Click **SYNC METADATA NOW**.
 
 ---
 
@@ -16,29 +31,9 @@ Video editors (like DaVinci Resolve or Premiere Pro) often strip essential metad
 
 ---
 
-## 📂 Folder Structure (For Developers)
+## Platform Support
 
-This project relies on a specific structure for development and building:
-
-* **`src/`**: Contains the Python source code (`metadata_syncer.pyw`).
-* **`assets/`**: Contains UI resources like `app_icon.ico`.
-* **`third_party/`**: Contains `exiftool.exe` and its dependency folder `exiftool_files`.
-    * *Note: These files are bundled INSIDE the final EXE during the build process.*
-
----
-
-## 🚀 How to Use (For Users)
-
-1.  Get the **`MetadataSyncerPro.exe`** file.
-2.  **That's it!** The file is completely portable (Single-File). No installation required.
-3.  Double-click to launch.
-4.  **Source Video:** Drag & drop your original camera footage.
-5.  **Target Video:** Drag & drop your rendered/edited file.
-6.  **Review Data:**
-    * The tool will automatically suggest a Timezone if GPS is found.
-    * Use the **Checkboxes** to select what data to copy (Date, Location, Camera Info).
-    * Check the **Preview Panel** to see the address and date calculations.
-7.  Click **SYNC METADATA NOW**.
+Currently, this project is for **Windows only**. While the core Python logic is cross-platform, the build script (`build.bat`) and dependency handling are specific to Windows.
 
 ---
 
@@ -52,3 +47,23 @@ Open a terminal in the root folder and install the required libraries:
 ```bash
 pip install PyQt6 pyinstaller tzdata geopy timezonefinder
 ```
+
+### 2. Building from Source
+Run the `build.bat` script to create a single-file executable.
+
+```bash
+build.bat
+```
+
+The script leverages ExifTool, a powerful, free, and open-source software for reading and writing metadata. The build script will automatically:
+1.  **Download ExifTool:** It fetches the ExifTool utility from its official website (https://exiftool.org) if it's not already present in the `third_party` folder.
+2.  **Extract Files:** It extracts the tool and its necessary components.
+3.  **Compile the App:** It uses PyInstaller to bundle the Python script and all dependencies (including ExifTool) into a single `.exe` file located in the `dist` directory.
+
+### 3. Folder Structure
+This project relies on a specific structure for development and building:
+
+* **`src/`**: Contains the Python source code (`metadata_syncer.pyw`).
+* **`assets/`**: Contains UI resources like `app_icon.ico`.
+* **`third_party/`**: Contains `exiftool.exe` and its dependency folder `exiftool_files`.
+    * *Note: These files are bundled INSIDE the final EXE during the build process.*

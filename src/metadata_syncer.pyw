@@ -28,7 +28,7 @@ except ImportError:
 
 # --- Configuration ---
 APP_AUTHOR = "AlmogTools"
-APP_NAME = "MetadataSyncerPro"
+APP_NAME = "MetadataSyncer"
 
 # --- Helpers ---
 
@@ -189,7 +189,7 @@ class GeoWorker(QThread):
         if not GEOPY_AVAILABLE:
             return
         try:
-            geolocator = Nominatim(user_agent="MetadataSyncerPro_v32")
+            geolocator = Nominatim(user_agent="MetadataSyncer")
             loc = geolocator.reverse(
                 (self.lat, self.lon), language='en', timeout=5)
             if loc:
@@ -398,7 +398,7 @@ class MetadataSyncerApp(QWidget):
         self.load_settings()
 
     def setup_header(self):
-        header = QLabel("Metadata Syncer Pro")
+        header = QLabel("Metadata Syncer")
         header.setStyleSheet(
             "font-size: 24px; font-weight: bold; color: white;")
         self.main_layout.addWidget(header)
