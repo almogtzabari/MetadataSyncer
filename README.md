@@ -1,8 +1,10 @@
 # Metadata Syncer
 
-**Metadata Syncer** is a professional Python-based GUI tool designed to restore missing metadata to rendered video files.
+**Metadata Syncer** is a handy GUI utility, built with Python, designed to solve a common problem: restoring metadata to rendered video files.
 
-Video editors (like DaVinci Resolve or Premiere Pro) often strip essential metadata—such as the original creation date, GPS location, and camera technical details—during export. This tool copies that data from the original source file to the new rendered file, ensuring correct sorting and display in **Windows Explorer**, **QuickTime**, **Google Photos**, and **Immich**.
+I built this tool to easily copy that data from the original source file to the new rendered file, ensuring correct sorting and display in **Windows Explorer**, **QuickTime**, **Google Photos**, and **Immich**.
+
+<img src="assets/screenshot.png" alt="Metadata Syncer Screenshot" width="600"/>
 
 ---
 
