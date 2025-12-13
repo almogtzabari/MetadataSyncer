@@ -23,6 +23,42 @@ I built this tool to easily copy that data from the original source file to the 
 
 ---
 
+## 💻 Command Line Usage
+
+Metadata Syncer can also be run from the command line, which is useful for automation or advanced scenarios.
+
+**Basic Usage:**
+
+```bash
+MetadataSyncer.exe --source <path_to_source_video> --target <path_to_target_video> [options]
+```
+
+**Arguments:**
+
+*   `--source <path>`: Path to the source video file (original).
+*   `--target <path>`: Path to the target video file (rendered/edited).
+*   `--sync-date`: Sync date and time metadata. (If no sync flags are provided, all are enabled by default.)
+*   `--sync-gps`: Sync GPS location metadata.
+*   `--sync-camera`: Sync camera information metadata.
+*   `--timezone <timezone_str>`: Specify the timezone for date syncing (e.g., `'America/New_York'`). Default is `UTC`. The tool will attempt to auto-detect the timezone from the source video's GPS data if available and use it, overriding this default if no specific timezone is given.
+*   `--log-level <level>`: Set the logging level (e.g., `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`). Default is `INFO`.
+*   `--log-file <path>`: Specify a file to write log output to. If not provided, logs will be printed to the console.
+
+**Examples:**
+
+```bash
+# Sync all metadata (date, GPS, camera) from source to target, with default logging to console (INFO level)
+MetadataSyncer.exe --source "C:\Videos\original.mov" --target "C:\Videos\edited.mp4"
+
+# Sync only date and GPS metadata, with debug logs written to a file
+MetadataSyncer.exe --source "original.mov" --target "edited.mp4" --sync-date --sync-gps --log-level DEBUG --log-file sync_debug.log
+
+# Sync all metadata, specifying a timezone, and showing only warnings and errors in the console
+MetadataSyncer.exe --source "C:\footages\source.mkv" --target "C:\exports\final.mov" --timezone "Asia/Jerusalem" --log-level WARNING
+```
+
+---
+
 ## ✨ Key Features
 
 * **Smart Date Sync:** Copies original "Media Created" timestamp and calculates correct offsets.
