@@ -6,6 +6,7 @@ import shutil
 import json
 import argparse
 import logging
+from collections import Counter
 from datetime import datetime
 
 from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
@@ -118,9 +119,11 @@ def analyze_file_metadata(file_path, exif_cmd):
         tags = [
             "-CreationDate", "-CreateDate",
             "-GPSLatitude", "-GPSLongitude",
-            "-Make", "-Model", "-FNumber", "-ISO", "-ExposureTime"
+            "-Make", "-Model", "-FNumber", "-ISO", "-ExposureTime",
+            "-LensModel", "-LensID", "-FocalLength", "-WhiteBalance",
+            "-LensMake", "-LensSerialNumber"
         ]
-        cmd = [exif_cmd, "-n", "-json"] + tags + [file_path]
+        cmd = [exif_cmd, "-ee", "-n", "-json"] + tags + [file_path]
         logger.debug(f"ExifTool command for analysis: {' '.join(cmd)}")
 
         res = subprocess.run(cmd, capture_output=True, text=True,
@@ -149,6 +152,9 @@ def analyze_file_metadata(file_path, exif_cmd):
             logger.warning(f"No metadata found in JSON output for {file_path}.")
             return result
 
+        # Pass through all analyzed metadata
+        result.update(metadata)
+
         # Date
         d = metadata.get("CreationDate", metadata.get("CreateDate", None))
         if d:
@@ -176,17 +182,32 @@ def analyze_file_metadata(file_path, exif_cmd):
             except ValueError as e:
                 logger.warning(f"GPS coordinate conversion failed for {file_path}: {e}")
 
-        # Camera
+        # Camera String for UI
         make, model = metadata.get("Make", ""), metadata.get("Model", "")
         fnum, iso = metadata.get("FNumber"), metadata.get("ISO")
+        focal, lens_model = metadata.get("FocalLength"), metadata.get("LensModel")
+        
         parts = []
         if make or model:
             name = f"{make} {model}".strip()
+            # Use dict.fromkeys to efficiently remove duplicates from the model name
             parts.append(" ".join(dict.fromkeys(name.split())))
+        if lens_model:
+             parts.append(lens_model)
+        
+        details = []
         if fnum:
-            parts.append(f"f/{fnum}")
+            details.append(f"f/{fnum}")
         if iso:
-            parts.append(f"ISO {iso}")
+            # When ISO is a list (from protobuf stream), find the most common value
+            iso_val = Counter(iso).most_common(1)[0][0] if isinstance(iso, list) and iso else iso
+            details.append(f"ISO {iso_val}")
+        if focal:
+             details.append(f"{focal}mm")
+
+        if details:
+            parts.append(" | ".join(details))
+
         if parts:
             result["camera"] = " | ".join(parts)
             logger.debug(f"Found camera info '{result['camera']}' for {file_path}")
@@ -242,16 +263,35 @@ def perform_sync_operation(source_path, target_path, sync_date, sync_gps, sync_c
             logger.warning(f"Could not sync date metadata from '{os.path.basename(source_path)}': {e}")
             pass
 
-    if sync_gps:
-        cmd.extend(["-TagsFromFile", source_path, "-*GPS*"])
-        logger.debug(f"Added GPS sync commands for {os.path.basename(source_path)}.")
+    # GPS tags are safe to copy in bulk as they are few.
+    if sync_gps and source_metadata.get("gps"):
+        cmd.extend(["-TagsFromFile", source_path, "-GPSLatitude", "-GPSLongitude", "-GPSAltitude", 
+                     "-GPSLatitudeRef", "-GPSLongitudeRef", "-GPSAltitudeRef"])
+        logger.debug("Added GPS sync commands.")
 
+    # For camera info, write tags individually to avoid copying huge streams (e.g., of ISO values)
     if sync_camera:
-        cmd.extend(["-TagsFromFile", source_path, "-Make", "-Model", "-FNumber",
-                   "-ISO", "-ExposureTime", "-LensModel", "-LensID"])
-        logger.debug(f"Added camera info sync commands for {os.path.basename(source_path)}.")
+        camera_tags_to_write = {}
+        # Define the tags we want to write
+        camera_tag_keys = ["Make", "Model", "FNumber", "ISO", "ExposureTime", "LensModel", 
+                           "LensID", "FocalLength", "WhiteBalance", "LensMake", "LensSerialNumber"]
+        for key in camera_tag_keys:
+            if key in source_metadata:
+                value = source_metadata[key]
+                # Special handling for ISO: find the most common value
+                if key == "ISO" and isinstance(value, list):
+                    if value: # Ensure list is not empty
+                        camera_tags_to_write[key] = Counter(value).most_common(1)[0][0]
+                else:
+                    camera_tags_to_write[key] = value
+        
+        if camera_tags_to_write:
+            for key, value in camera_tags_to_write.items():
+                cmd.append(f"-{key}={value}")
+            logger.debug(f"Added {len(camera_tags_to_write)} individual camera tags to write.")
 
-    cmd.extend(["-overwrite_original", target_path])
+    cmd.append("-overwrite_original_in_place")
+    cmd.append(target_path)
     logger.debug(f"Full ExifTool sync command: {' '.join(cmd)}")
 
     try:
